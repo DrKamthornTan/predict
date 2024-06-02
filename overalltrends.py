@@ -38,10 +38,6 @@ def get_records_by_years(years):
         f"All {len(years) - 3} years": {
             "rns": df.loc[df['rn'].isin(record_counts[record_counts == len(years) - 3].index)]['rn'].tolist(),
             "count": len(df.loc[df['rn'].isin(record_counts[record_counts == len(years) - 3].index)]['rn'])
-        },
-        "1 year": {
-            "rns": df.loc[df['rn'].isin(record_counts[record_counts == 1].index)]['rn'].tolist(),
-            "count": len(df.loc[df['rn'].isin(record_counts[record_counts == 1].index)]['rn'])
         }
     }
     
@@ -88,20 +84,28 @@ def plot_timeseries(predicted_values=None):
     return fig
 
 # Streamlit app
-st.title("DHV Time-series Trend Analysis")
+st.title("DHV Time-series Overall Trend Analysis & Prediction")
+
+# Display the overall average values
+average_values = df[numeric_columns].mean()
+st.write("Overall Average Values:")
+st.write(average_values)
 
 # Get the unique years in the data
 unique_years = df['year'].dt.year.unique()
 
 # Allow the user to select the years they are interested in
-selected_years = st.multiselect('Select years', unique_years, default=unique_years)
+#selected_years = st.multiselect('Select years', unique_years, default=unique_years)
 
 # Display the record IDs (RNs) that have data for the selected years and their counts
-rn_data = get_records_by_years(selected_years)
+rn_data = get_records_by_years(unique_years)
 
+#for years, rn_info in rn_data.items():
+#    if rn_info['rns']:
+#        st.write(f"Records with data for {years} ({rn_info['count']}): {', '.join(map(str, rn_info['rns']))}")
 for years, rn_info in rn_data.items():
     if rn_info['rns']:
-        st.write(f"Records with data for {years} ({rn_info['count']}): {', '.join(map(str, rn_info['rns']))}")
+        st.write(f"Records with data for {years} ({rn_info['count']})")
 
 # Plot the time-series line graphs and predict next year's values for the overall average
 if st.button("Plot Trends"):
@@ -159,5 +163,4 @@ if st.button("Plot Trends"):
     # Plot the time-series with predicted values
     fig = plot_timeseries(predicted_values)
     st.plotly_chart(fig, use_container_width=True)
-
 
